@@ -21,7 +21,22 @@ Pick your species, eyes, hat, and shiny — then apply instantly. No more random
 - [Bun](https://bun.sh/) runtime
 - [Claude Code](https://claude.ai/code) installed
 
-## Usage
+## Install
+
+### 1. Install Bun
+
+```bash
+# macOS / Linux
+curl -fsSL https://bun.sh/install | bash
+
+# Windows (via PowerShell)
+powershell -c "irm bun.sh/install.ps1 | iex"
+
+# or via Homebrew
+brew install oven-sh/bun/bun
+```
+
+### 2. Run
 
 ```bash
 bun buddy-designer.mjs
