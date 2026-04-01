@@ -4,7 +4,7 @@ Interactive TUI tool for designing your [Claude Code](https://claude.ai/code) co
 
 Pick your species, eyes, hat, and shiny — then apply instantly. No more random rolls.
 
-![demo](https://github.com/user-attachments/assets/placeholder)
+![demo](assets/demo.png)
 
 ## Features
 
