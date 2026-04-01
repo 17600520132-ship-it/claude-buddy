@@ -6,6 +6,8 @@ Interactive TUI tool for designing your [Claude Code](https://claude.ai/code) co
 
 Pick your species, eyes, hat, and shiny — then apply instantly. No more random rolls.
 
+> **Note:** Only works with API key users. OAuth login users are not supported.
+
 ![demo](assets/demo.png)
 
 ## Features
