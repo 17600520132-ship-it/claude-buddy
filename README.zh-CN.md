@@ -5,8 +5,15 @@
 交互式终端工具，自定义你的 [Claude Code](https://claude.ai/code) 宠物伙伴。选择种族、眼睛、帽子和闪光效果，一键应用，告别随机。
 
 > **注意：** 仅支持 API key 用户，不支持 OAuth 登录用户。
+>
+> **要求：** Claude Code **v2.1.89** 及以上版本。使用本工具前，请先在 Claude Code 中执行一次 `/buddy`。
 
 ![demo](assets/demo.png)
+
+应用后，重启 Claude Code 并执行 `/buddy` 查看效果：
+
+![cc-buddy](assets/cc-buddy-1.png)
+![cc-buddy-card](assets/cc-buddy-2.png)
 
 ## 功能
 
