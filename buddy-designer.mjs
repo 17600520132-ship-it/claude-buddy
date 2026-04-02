@@ -315,18 +315,17 @@ function draw() {
 
   // Title
   mv(1, 1); w(`${GD}${BD}  ✦ Claude Code Buddy Designer ✦${X}`);
-  // Help box — use mv() for precise column alignment
-  const HK = 4, HD = 11, HK2 = 36, HD2 = 43; // key col, desc col, key col2, desc col2
-  mv(2, 1); w(`${DM}  ──────────────────────────────────────────────────────────────${X}`);
-  mv(3, HK); w(`${GD}↑↓${X}`);    mv(3, HD); w(`${DM}上下选择字段${X}`);
-  mv(3, HK2); w(`${GD}←→${X}`);   mv(3, HD2); w(`${DM}切换选项/刷新目标属性${X}`);
-  mv(4, HK); w(`${GD}Enter${X}`); mv(4, HD); w(`${DM}应用设计/恢复已保存宠物${X}`);
-  mv(4, HK2); w(`${GD}n${X}`);    mv(4, HD2); w(`${DM}给宠物改名${X}`);
-  mv(5, HK); w(`${GD}r${X}`);     mv(5, HD); w(`${DM}属性定制（设置升降后刷新）${X}`);
-  mv(5, HK2); w(`${GD}n${X}`);    mv(5, HD2); w(`${DM}给宠物改名${X}`);
-  mv(6, HK); w(`${GD}d${X}`);     mv(6, HD); w(`${DM}删除已保存条目${X}`);
-  mv(6, HK2); w(`${GD}q${X}`);    mv(6, HD2); w(`${DM}退出${X}`);
-  mv(7, 1); w(`${DM}  ──────────────────────────────────────────────────────────────${X}`);
+  // Help box — 3 columns, use mv() for precise alignment
+  const HK = 4, HD = 11, HK2 = 30, HD2 = 37, HK3 = 56, HD3 = 63;
+  mv(2, 1); w(`${DM}  ────────────────────────────────────────────────────────────────────────────${X}`);
+  mv(3, HK); w(`${GD}↑↓${X}`);    mv(3, HD); w(`${DM}选择字段${X}`);
+  mv(3, HK2); w(`${GD}←→${X}`);   mv(3, HD2); w(`${DM}切换选项${X}`);
+  mv(3, HK3); w(`${GD}Enter${X}`); mv(3, HD3); w(`${DM}应用/恢复宠物${X}`);
+  mv(4, HK); w(`${GD}r${X}`);     mv(4, HD); w(`${DM}属性定制刷新${X}`);
+  mv(4, HK2); w(`${GD}n${X}`);    mv(4, HD2); w(`${DM}改名${X}`);
+  mv(4, HK3); w(`${GD}d${X}`);    mv(4, HD3); w(`${DM}删除条目${X}`);
+  mv(5, HK); w(`${GD}q${X}`);     mv(5, HD); w(`${DM}退出${X}`);
+  mv(6, 1); w(`${DM}  ────────────────────────────────────────────────────────────────────────────${X}`);
 
   // Left panel — attribute selectors
   const fields = [
@@ -336,7 +335,7 @@ function draw() {
     { label: "SHINY", val: SHINY_OPTS[selShiny] },
   ];
   for (let i = 0; i < fields.length; i++) {
-    const row = 9 + i;
+    const row = 8 + i;
     const f = fields[i];
     const active = selField === i;
     mv(row, 1);
@@ -348,7 +347,7 @@ function draw() {
   }
 
   // Start button
-  const btnRow = 14;
+  const btnRow = 13;
   mv(btnRow, 1);
   if (mode === "design") {
     const active = selField === 4;
@@ -386,27 +385,27 @@ function draw() {
 
   // Right panel — clear entire right area first (prevent ghost content)
   const CLEAR_W = "                                            ";
-  for (let r = 9; r <= 28; r++) { mv(r, RIGHT_C); w(CLEAR_W); }
+  for (let r = 8; r <= 27; r++) { mv(r, RIGHT_C); w(CLEAR_W); }
 
   // Right panel — all content indented to center
   const RC = RIGHT_C + 4; // base indent for right panel content
 
   // Species title
   const shinyLabel = selShiny ? ` ✨` : "";
-  mv(9, RC); w(`${GD}${BD}${previewSp.toUpperCase()} // legendary ★★★★★${shinyLabel}${X}`);
-  mv(10, RC); w(`${DM}${"─".repeat(28)}${X}`);
+  mv(8, RC); w(`${GD}${BD}${previewSp.toUpperCase()} // legendary ★★★★★${shinyLabel}${X}`);
+  mv(9, RC); w(`${DM}${"─".repeat(28)}${X}`);
 
   // Sprite — fixed 5 rows, extra indent to center the ASCII art
   const SPRITE_INDENT = RC + 4;
   for (let i = 0; i < 5; i++) {
-    mv(11 + i, SPRITE_INDENT);
+    mv(10 + i, SPRITE_INDENT);
     if (i < sprite.length) {
       w(`${GD}${sprite[i]}${X}`);
     }
   }
 
   // Fixed positions below sprite
-  const INFO_ROW = 17;
+  const INFO_ROW = 16;
   mv(INFO_ROW, RC); w(`${DM}${"─".repeat(28)}${X}`);
   mv(INFO_ROW + 1, RC); w(`${DM}eye${X}  ${BD}${previewEye}${X}    ${DM}hat${X}  ${BD}${previewHat}${X}    ${DM}shiny${X}  ${BD}${SHINY_OPTS[selShiny]}${X}`);
 
