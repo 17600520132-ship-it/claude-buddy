@@ -23,7 +23,8 @@ After applying, restart Claude Code and run `/buddy` to see the result:
 - **Full attribute control** — species, eye style, hat, shiny toggle
 - **Live preview** — animated ASCII sprite with idle sequence matching Claude Code
 - **Collection manager** — auto-saves legendaries, browse and restore anytime
-- **Stat reroller** — reroll stats while keeping appearance locked (only goes up, never down)
+- **Targeted stat reroll** — enter stat customization mode, set per-stat direction (↑ higher / ↓ lower), then reroll. Defaults: DEBUGGING↑ PATIENCE↑ CHAOS↓ WISDOM↑ SNARK↓
+- **Rename** — give your buddy a custom name (supports CJK characters)
 - **Shiny preservation** — rerolling a shiny buddy guarantees shiny results
 - **Auto-detection** — detects native (bun) vs npm (node) Claude Code installs and uses the correct hash function
 
@@ -48,16 +49,38 @@ brew install oven-sh/bun/bun
 bun buddy-designer.mjs
 ```
 
-### Controls
+## Controls
+
+### Design Mode
 
 | Key | Action |
 |-----|--------|
-| `↑` `↓` | Navigate fields |
-| `←` `→` | Cycle options |
-| `Enter` / `Space` | Apply design or restore saved buddy |
-| `r` | Reroll stats (only goes up) |
+| `↑` `↓` | Navigate fields / saved entries |
+| `←` `→` | Cycle species, eye, hat, shiny |
+| `Enter` | Apply design or restore a saved buddy |
+| `r` | Enter stat reroll setup (on saved entries) |
+| `n` | Rename buddy (on saved entries) |
 | `d` | Delete saved entry |
 | `q` | Quit |
+
+### Stat Reroll Setup (after pressing `r`)
+
+| Key | Action |
+|-----|--------|
+| `↑` `↓` | Select stat to configure |
+| `Enter` | Toggle direction (↑ higher / ↓ lower) |
+| `r` | Start rerolling with current constraints |
+| `Esc` / `q` | Cancel and return to design mode |
+
+Default directions: DEBUGGING↑ PATIENCE↑ CHAOS↓ WISDOM↑ SNARK↓. All constraints must be satisfied simultaneously. Stats at their limit (100 or 1) are allowed to stay equal.
+
+### Rename Mode (after pressing `n`)
+
+| Key | Action |
+|-----|--------|
+| Type | Enter new name (max 20 chars, supports Chinese) |
+| `Enter` | Confirm |
+| `Esc` | Cancel |
 
 ## How It Works
 
@@ -70,7 +93,12 @@ The tool auto-detects which hash function your Claude Code uses and searches acc
 
 ### What it changes
 
-Only the `userID` field in your Claude Code config file (`~/.claude.json` or equivalent). Your authentication, settings, and everything else remain untouched. The companion's "soul" (name, personality) is written to the `companion` field.
+Only two fields in your Claude Code config file (`~/.claude.json` or equivalent):
+
+- `userID` — determines the buddy's appearance and stats
+- `companion` — stores the buddy's name and personality
+
+Your authentication, settings, and everything else remain untouched.
 
 ## Saved Collection
 
@@ -78,6 +106,7 @@ Legendaries are saved to `~/.claude/buddy-legendaries.json`. Each entry records:
 
 - Species, eye, hat, shiny status
 - Full stat block (DEBUGGING, PATIENCE, CHAOS, WISDOM, SNARK)
+- Custom name
 - UserID (for restoring later)
 - Timestamp
 
@@ -86,16 +115,19 @@ The `★` marker shows which buddy is currently active.
 ## FAQ
 
 **Q: Will this break my Claude Code?**
-A: No. It only modifies `userID` in the config file. Claude Code re-derives the buddy on each startup. Your auth tokens and settings are not affected.
+A: No. It only modifies `userID` and `companion` in the config file. Claude Code re-derives the buddy appearance on each startup. Your auth tokens and settings are not affected.
 
 **Q: Can I go back to my old buddy?**
-A: Yes. Your old userID is preserved in the saved collection. You can restore any saved entry anytime.
+A: Yes. All applied buddies are saved to the collection. Select any entry and press Enter to restore.
 
 **Q: Does this work with OAuth login?**
-A: No. OAuth users' buddy is determined by `oauthAccount.accountUuid`, which this tool does not modify. This tool only works for API key users whose buddy is derived from `userID`.
+A: No. OAuth users' buddy is determined by `oauthAccount.accountUuid`, which this tool does not modify. Only API key users are supported.
 
 **Q: Why does searching for shiny take so long?**
 A: Shiny has a 1% chance per roll, on top of legendary's ~1% chance and the specific species/eye/hat combo. That's roughly 1 in 10 million. Be patient — it will find one.
+
+**Q: Why is the stat reroll taking forever?**
+A: All 5 stat constraints must be satisfied simultaneously. If a stat is already at its limit (e.g., 100), the tool allows it to stay equal. But very high stats across the board are extremely rare. Try toggling some stats to ↓ to relax the constraints.
 
 **Q: Does this work on Linux?**
 A: Yes, as long as you have Bun installed. Note that on some cloud VMs, Claude Code may need a restart to pick up the config change.
