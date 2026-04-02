@@ -12,8 +12,7 @@
 
 应用后，重启 Claude Code 并执行 `/buddy` 查看效果：
 
-![cc-buddy](assets/cc-buddy-1.png)
-![cc-buddy-card](assets/cc-buddy-2.png)
+![buddy-card](assets/buddy-card.png)
 
 ## 功能
 

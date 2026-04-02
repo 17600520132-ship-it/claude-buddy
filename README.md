@@ -14,8 +14,7 @@ Pick your species, eyes, hat, and shiny — then apply instantly. No more random
 
 After applying, restart Claude Code and run `/buddy` to see the result:
 
-![cc-buddy](assets/cc-buddy-1.png)
-![cc-buddy-card](assets/cc-buddy-2.png)
+![buddy-card](assets/buddy-card.png)
 
 ## Features
 
