@@ -240,6 +240,7 @@ let mode = "design", rollCount = 0, tick = 0;
 let foundBuddy = null, foundUid = null, prevStats = null;
 let savedEntries = [];
 let currentUid = "";
+let renameBuffer = ""; // Buffer for rename input
 const SHINY_OPTS = ["off", "on"];
 // Stat targeting: 0=none, 1=up, 2=down (per stat index 0-4)
 let statTargets = [0, 0, 0, 0, 0];
@@ -267,6 +268,14 @@ process.stdin.setEncoding("utf8");
 
 let keyQueue = [];
 process.stdin.on("data", (data) => {
+  if (mode === "rename") {
+    // In rename mode, capture text input
+    if (data[0] === "\r" || data[0] === "\n") keyQueue.push("rename_confirm");
+    else if (data[0] === "\x1b" || data[0] === "\x03") keyQueue.push("rename_cancel");
+    else if (data[0] === "\x7f" || data[0] === "\b") keyQueue.push("rename_backspace");
+    else if (data[0] >= " " && data.length === 1) keyQueue.push("rename_char:" + data[0]);
+    return;
+  }
   if (data.startsWith("\x1b[A")) keyQueue.push("up");
   else if (data.startsWith("\x1b[B")) keyQueue.push("down");
   else if (data.startsWith("\x1b[C")) keyQueue.push("right");
@@ -275,6 +284,7 @@ process.stdin.on("data", (data) => {
   else if (data[0] === "q" || data[0] === "\x03") keyQueue.push("quit");
   else if (data[0] === "d" || data[0] === "x") keyQueue.push("delete");
   else if (data[0] === "r") keyQueue.push("reroll");
+  else if (data[0] === "n") keyQueue.push("rename");
   else if (data[0] >= "1" && data[0] <= "5") keyQueue.push("stat" + data[0]);
 });
 
@@ -304,7 +314,7 @@ function draw() {
 
   // Title
   mv(1, 1); w(`${GD}${BD}  ✦ Claude Code Buddy Designer ✦${X}`);
-  mv(2, 1); w(`${DM}  ↑↓ 选择 · ←→ 切换 · Enter 应用 · r 刷属性 · 1-5 定向↑↓ · d 删除 · q 退出${X}`);
+  mv(2, 1); w(`${DM}  ↑↓ 选择 · ←→ 切换 · Enter 应用 · r 刷属性 · 1-5 定向↑↓ · n 改名 · d 删除 · q 退出${X}`);
 
   // Left panel — attribute selectors
   const fields = [
@@ -396,7 +406,12 @@ function draw() {
     const prevTotal = prevStats ? Object.values(prevStats).reduce((a,b)=>a+b,0) : null;
     const totalDiff = prevTotal !== null ? total - prevTotal : 0;
     const totalDiffStr = totalDiff > 0 ? ` \x1b[32m+${totalDiff}${X}` : totalDiff < 0 ? ` \x1b[31m${totalDiff}${X}` : "";
-    mv(INFO_ROW + 3, RC); w(`${GD}${BD}${displayBuddy.name || "?"}${X}  ${DM}(${total} total)${X}${totalDiffStr}`);
+    mv(INFO_ROW + 3, RC);
+    if (mode === "rename") {
+      w(`${GD}${BD}Name: ${renameBuffer}█${X}  ${DM}(Enter 确认 · Esc 取消)${X}`);
+    } else {
+      w(`${GD}${BD}${displayBuddy.name || "?"}${X}  ${DM}(${total} total)${X}${totalDiffStr}`);
+    }
     for (let i = 0; i < STAT_NAMES.length; i++) {
       const n = STAT_NAMES[i];
       const v = s[n] || 0;
@@ -579,10 +594,38 @@ while (true) {
   if (!key) { await sleep(50); continue; }
 
   if (key === "quit") {
+    if (mode === "rename") { mode = "design"; draw(); continue; }
     clearInterval(animTimer);
     show_cursor();
     clr();
     process.exit(0);
+  }
+
+  // Rename mode input handling
+  if (mode === "rename") {
+    if (key === "rename_confirm") {
+      const idx = selField - 5;
+      if (idx >= 0 && idx < savedEntries.length && renameBuffer.trim()) {
+        const newName = renameBuffer.trim();
+        savedEntries[idx].name = newName;
+        if (savedEntries[idx].companion) savedEntries[idx].companion.name = newName;
+        writeFileSync(legendaryLog, JSON.stringify(savedEntries, null, 2));
+        // Update config if this is the active buddy
+        if (savedEntries[idx].userID === currentUid) {
+          const data = JSON.parse(readFileSync(homeJson, "utf8"));
+          if (data.companion) { data.companion.name = newName; writeConfig(data); }
+        }
+        if (foundBuddy) foundBuddy.name = newName;
+      }
+      mode = "design";
+    } else if (key === "rename_cancel") {
+      mode = "design";
+    } else if (key === "rename_backspace") {
+      renameBuffer = renameBuffer.slice(0, -1);
+    } else if (key.startsWith("rename_char:")) {
+      if (renameBuffer.length < 20) renameBuffer += key.slice(12);
+    }
+    draw(); continue;
   }
 
   if (mode === "design") {
@@ -641,6 +684,11 @@ while (true) {
       // Toggle stat target: none → ↑ → ↓ → none
       const si = parseInt(key[4]) - 1;
       statTargets[si] = (statTargets[si] + 1) % 3;
+    } else if (key === "rename") {
+      if (selField >= 5 && selField - 5 < savedEntries.length) {
+        renameBuffer = savedEntries[selField - 5].name || "";
+        mode = "rename";
+      }
     }
   } else if (mode === "found") {
     const maxField = 4 + savedEntries.length;
@@ -657,6 +705,11 @@ while (true) {
     } else if (key.startsWith("stat")) {
       const si = parseInt(key[4]) - 1;
       statTargets[si] = (statTargets[si] + 1) % 3;
+    } else if (key === "rename") {
+      if (selField >= 5 && selField - 5 < savedEntries.length) {
+        renameBuffer = savedEntries[selField - 5].name || "";
+        mode = "rename";
+      }
     }
   }
 
